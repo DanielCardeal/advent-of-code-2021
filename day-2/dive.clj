@@ -29,3 +29,24 @@
 
 ;; Resposta
 (apply * (tot_displacement directions))
+
+;; --- Parte 2
+(defn tot_displacement'
+  "Calculate the total displacement of the submarine based on a list of
+  directions and the new found interpretation of each command."
+  [dirs]
+  (let [add-disp (fn [acc value]
+                   (let [[horiz depth aim] acc
+                         [dir amount] value]
+                     (case dir
+                       :up (list horiz depth (- aim amount))
+                       :down (list horiz depth (+ aim amount))
+                       :forward (list (+ horiz amount)
+                                      (+ depth (* aim amount))
+                                      aim))))
+        [horiz depth _] (reduce add-disp [0 0 0] dirs)]
+    {:horiz horiz, :depth depth}))
+
+;; Resposta
+(let [{h :horiz d :depth} (tot_displacement' directions)]
+     (* h d))
