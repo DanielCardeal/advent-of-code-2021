@@ -21,3 +21,17 @@
 
 ;; Resposta:
 (count_measurements measurements)
+
+;; --- Parte 2
+(defn count_win_measurements
+  "Count how many measurements are larger than their predecessor using a
+  three-value group window."
+  [ms]
+  (let [zip2 #(map vector %1 %2)]
+    (->> (zip2 ms (drop 3 ms))
+         (map #(apply - %))
+         (filter neg?)
+         (count))))
+
+;; Resposta
+(count_win_measurements measurements)
