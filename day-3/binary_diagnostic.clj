@@ -2,15 +2,20 @@
   (:require [clojure.string :as str]))
 
 ;; --- Parte 1
-(defn- most-common
+(defn- count-bit-values
+  "Count the number of zeros and ones that appears in a given bit for all values
+  of a report."
+  [report bit]
+  (let [count1 (->> report
+                    (filter #(bit-test % bit))
+                    (count))
+        count0 (- (count report) count1)]
+    [count0 count1]))
+
+(defn- most-common-bit
   "Return the most common value (0 or 1) of a bit in a report."
   [report bit]
-  (let [mask (.intValue (Math/pow 2 bit))
-        count1 (->> report
-                    (map #(bit-and mask %))
-                    (map #(bit-shift-right % bit))
-                    (apply +))
-        count0 (- (count report) count1)]
+  (let [[count0 count1] (count-bit-values report bit)]
     (if (> count0 count1) 0 1)))
 
 (defn- gamma-rate
@@ -20,7 +25,7 @@
         pushBit (fn [tot bit]
                   (+ bit (bit-shift-left tot 1)))]
     (->> bits
-        (map #(most-common report %))
+        (map #(most-common-bit report %))
         (reduce pushBit 0))))
 
 (defn- epsilon-rate
