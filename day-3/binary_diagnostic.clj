@@ -54,3 +54,49 @@
       report (map #(Integer/parseInt % 2) lines)
       num-bits (count (first lines))]
   (power-consumption report num-bits))
+
+
+;; --- Parte 2
+(defn- oxygen-rating
+  "Calculates the oxygen rating for a given report."
+  [report num-bits]
+  (when (< num-bits 0)
+    (throw (IllegalArgumentException. "num-bits cannot be a negative number.")))
+  (let [[count0 count1] (count-bit-values report num-bits)
+        report-filtered (if (<= count0 count1)
+                          (filter #(bit-test % num-bits) report)
+                          (filter #(not (bit-test % num-bits)) report))]
+    (if (= 1 (count report-filtered))
+      (first report-filtered)
+      (oxygen-rating report-filtered (- num-bits 1)))))
+
+(defn- co2-scrubber-rating
+  "Calculates the co2 scrubber rating for a given report."
+  [report num-bits]
+  (when (< num-bits 0)
+    (throw (IllegalArgumentException. "num-bits cannot be a negative number.")))
+  (let [[count0 count1] (count-bit-values report num-bits)
+        report-filtered (if (<= count0 count1)
+                          (filter #(not (bit-test % num-bits)) report)
+                          (filter #(bit-test % num-bits) report))]
+    (if (= 1 (count report-filtered))
+      (first report-filtered)
+      (co2-scrubber-rating report-filtered (- num-bits 1)))))
+
+(defn life-support-rating
+  "Calculates the life support rating of a given report."
+  [report num-bits]
+  (let [co2-rating (co2-scrubber-rating report num-bits)
+        oxygen-rating (oxygen-rating report num-bits)]
+    (* co2-rating oxygen-rating)))
+
+;; Testes
+(assert (= (oxygen-rating INPUT_TESTE 4) 23))
+(assert (= (co2-scrubber-rating INPUT_TESTE 4) 10))
+(assert (= (life-support-rating INPUT_TESTE 4) 230))
+
+;; Resultado
+(let [lines (str/split-lines (slurp INPUT_FILE))
+      report (map #(Integer/parseInt % 2) lines)
+      num-bits (count (first lines))]
+  (life-support-rating report (- num-bits 1)))
